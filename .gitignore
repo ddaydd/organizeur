@@ -1,0 +1,31 @@
+# Android build
+organizeur-android/app/build/
+organizeur-android/.gradle/
+organizeur-android/.kotlin/
+organizeur-android/local.properties
+
+# Gear clockface build
+gear-clockface/build/
+gear-clockface/*.wgt
+gear-clockface/author-signature.xml
+gear-clockface/signature1.xml
+gear-clockface/.manifest.tmp
+gear-clockface.wgt
+
+# Meteor (desktop)
+organizeur-desktop/node_modules/
+organizeur-desktop/_build/
+organizeur-desktop/.meteor/local/
+
+# Releases (APK binaries)
+releases/
+
+# Runtime cache
+image_cache/
+
+# Claude Code local config
+.claude/
+
+# IDE
+.idea/
+*.iml

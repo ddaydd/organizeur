@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Organizeur</string>
+    <string name="filter_title">Filtrage des appels</string>
+    <string name="filter_description">Bloquer les appels des numéros inconnus (hors contacts)</string>
+    <string name="filter_enabled">Filtre activé</string>
+    <string name="filter_disabled">Filtre désactivé</string>
+    <string name="action_silence">Silencieux</string>
+    <string name="action_reject">Rejeter</string>
+    <string name="action_label">Action sur appel inconnu</string>
+    <string name="setup_screener">Configurer comme filtre d\'appels</string>
+    <string name="setup_screener_description">L\'application doit être désignée comme filtre d\'appels dans les paramètres système</string>
+    <string name="permissions_needed">Permissions requises</string>
+    <string name="permissions_description">L\'application a besoin d\'accéder aux contacts et à l\'état du téléphone</string>
+    <string name="grant_permissions">Accorder les permissions</string>
+    <string name="permissions_granted">Permissions accordées</string>
+    <string name="screener_active">Filtre d\'appels actif</string>
+
+    <!-- Mode silencieux -->
+    <string name="silent_mode_title">Mode silencieux programmable</string>
+    <string name="silent_mode_description">Programmer l\'activation automatique du mode silencieux. La désactivation se fait manuellement, par une heure de fin optionnelle, ou par le futur réveil.</string>
+    <string name="silent_mode_add">Ajouter une plage</string>
+    <string name="silent_mode_no_schedules">Aucune plage horaire configurée</string>
+    <string name="silent_mode_active">Mode silencieux actif</string>
+    <string name="silent_mode_enabled">Activée</string>
+    <string name="silent_mode_disabled">Désactivée</string>
+
+    <string name="silent_mode_edit_title">Modifier la plage</string>
+    <string name="silent_mode_new_title">Nouvelle plage</string>
+    <string name="silent_mode_name_label">Nom</string>
+    <string name="silent_mode_name_hint">Ex : Nuit, Travail</string>
+    <string name="silent_mode_days_label">Jours</string>
+    <string name="silent_mode_start_time">Heure d\'activation</string>
+    <string name="silent_mode_end_time">Heure de fin (facultative)</string>
+    <string name="silent_mode_deactivate">Désactiver le mode silencieux</string>
+    <string name="silent_mode_dnd_mode">Mode Ne pas déranger</string>
+    <string name="silent_mode_dnd_total">Silence total</string>
+    <string name="silent_mode_dnd_alarms">Alarmes uniquement</string>
+    <string name="silent_mode_dnd_priority">Prioritaires uniquement</string>
+    <string name="silent_mode_volumes">Volumes</string>
+    <string name="silent_mode_volume_ringtone">Sonnerie</string>
+    <string name="silent_mode_volume_notification">Notifications</string>
+    <string name="silent_mode_volume_media">Média</string>
+    <string name="silent_mode_save">Enregistrer</string>
+    <string name="silent_mode_cancel">Annuler</string>
+    <string name="silent_mode_delete">Supprimer</string>
+
+    <string name="silent_mode_perm_dnd">Permission Ne pas déranger requise</string>
+    <string name="silent_mode_perm_dnd_desc">Autorisez l\'application à contrôler le mode Ne pas déranger</string>
+    <string name="silent_mode_perm_alarm">Permission alarmes exactes requise</string>
+    <string name="silent_mode_perm_alarm_desc">Autorisez les alarmes exactes pour un déclenchement précis</string>
+    <string name="silent_mode_perm_grant">Autoriser</string>
+
+    <string name="day_mon">L</string>
+    <string name="day_tue">M</string>
+    <string name="day_wed">M</string>
+    <string name="day_thu">J</string>
+    <string name="day_fri">V</string>
+    <string name="day_sat">S</string>
+    <string name="day_sun">D</string>
+
+    <!-- Navigation -->
+    <string name="nav_back">Retour</string>
+    <string name="menu_call_filter">Filtrage des appels</string>
+    <string name="menu_silent_mode">Mode silencieux</string>
+    <string name="menu_setup">Configuration</string>
+    <string name="dashboard_title">Organizeur</string>
+    <string name="menu_help">Aide</string>
+    <string name="setup_features">Fonctionnalités</string>
+    <string name="setup_features_desc">Choisir les fonctionnalités affichées dans le menu</string>
+
+    <!-- Aide volumes dans le dialog -->
+    <string name="volume_help_general">Cochez pour forcer le volume à une valeur précise pendant la plage horaire.</string>
+    <string name="volume_help_ringtone">Volume des appels entrants</string>
+    <string name="volume_help_notification">Volume des alertes d\'applications</string>
+    <string name="volume_help_media">Volume de la musique et des vidéos</string>
+    <string name="volume_no_effect">Sans effet dans ce mode</string>
+
+    <!-- Caméra -->
+    <string name="menu_camera">Caméra réseau</string>
+    <string name="camera_title">Caméra réseau</string>
+    <string name="camera_description">Diffuser la caméra du téléphone en flux MJPEG sur le réseau local</string>
+    <string name="camera_start">Démarrer</string>
+    <string name="camera_stop">Arrêter</string>
+    <string name="camera_switch">Changer de caméra</string>
+    <string name="camera_front">Avant</string>
+    <string name="camera_back">Arrière</string>
+    <string name="camera_streaming">Streaming en cours</string>
+    <string name="camera_stopped">Streaming arrêté</string>
+    <string name="camera_url_label">URL du flux</string>
+    <string name="camera_clients">Clients connectés : %d</string>
+    <string name="camera_no_wifi">WiFi non connecté</string>
+    <string name="camera_permission_needed">Permission caméra requise</string>
+    <string name="camera_permission_desc">Autorisez l\'accès à la caméra pour le streaming</string>
+    <string name="camera_resolution">Résolution</string>
+    <string name="camera_notification_title">Caméra réseau active</string>
+    <string name="camera_notification_text">Streaming MJPEG sur %s</string>
+    <string name="camera_notification_stop">Arrêter</string>
+    <string name="camera_port_label">Port</string>
+
+    <!-- Page Aide -->
+
+    <string name="help_title">Aide</string>
+    <string name="help_section_call_filter">Filtrage des appels</string>
+    <string name="help_section_silent_mode">Mode silencieux</string>
+    <string name="help_section_config">Configuration</string>
+    <string name="help_call_filter_title">Fonctionnement</string>
+    <string name="help_call_filter_body">L\'application peut filtrer les appels entrants provenant de numéros inconnus (absents de vos contacts).\n\nDeux actions sont possibles :\n• Silencieux : l\'appel sonne sans son\n• Rejeter : l\'appel est directement refusé</string>
+    <string name="help_silent_mode_title">Mode silencieux programmable</string>
+    <string name="help_silent_mode_body">Programmez l\'activation automatique du mode silencieux.\n\nPour chaque planification, vous choisissez :\n• Les jours de la semaine\n• L\'heure d\'activation\n• Une heure de fin optionnelle\n• Le mode Ne pas déranger\n• Les volumes à forcer\n\nSans heure de fin, la désactivation se fait manuellement via le bouton dans l\'application, ou par le futur réveil.</string>
+    <string name="help_volumes_title">Contrôle des volumes</string>
+    <string name="help_volumes_body">Chaque volume (Sonnerie, Notifications, Média) dispose d\'une case à cocher et d\'un curseur.\n\n• Case cochée : le volume est forcé à la valeur du curseur pendant la plage horaire\n• Case décochée : le volume n\'est pas modifié par l\'application\n\nCela permet par exemple de couper la sonnerie tout en gardant le volume média inchangé.</string>
+    <string name="help_dnd_title">Modes Ne pas déranger</string>
+    <string name="help_dnd_body">• Silence total : aucune notification sonore ni vibration\n• Alarmes uniquement : seules les alarmes sont autorisées\n• Prioritaires uniquement : seuls les contacts et applis prioritaires peuvent vous déranger</string>
+    <string name="help_permissions_title">Permissions requises</string>
+    <string name="help_permissions_body">L\'application a besoin de plusieurs permissions :\n\n• Filtre d\'appels : pour intercepter les appels inconnus\n• Contacts et état du téléphone : pour vérifier si l\'appelant est dans vos contacts\n• Ne pas déranger : pour activer/désactiver le mode silencieux\n• Alarmes exactes : pour déclencher les plages horaires avec précision\n• Caméra : pour le streaming vidéo réseau\n\nCes permissions se configurent dans la page Configuration.</string>
+
+    <string name="help_section_about">À propos</string>
+
+    <!-- Alarmes -->
+    <string name="menu_alarm">Alarmes</string>
+    <string name="alarm_title">Gestion des alarmes</string>
+    <string name="alarm_description">Programmer des alarmes qui sonnent même en mode silencieux. Le mode silencieux est automatiquement désactivé quand une alarme sonne.</string>
+    <string name="alarm_add">Ajouter une alarme</string>
+    <string name="alarm_no_alarms">Aucune alarme configurée</string>
+    <string name="alarm_edit_title">Modifier l\'alarme</string>
+    <string name="alarm_new_title">Nouvelle alarme</string>
+    <string name="alarm_name_label">Nom</string>
+    <string name="alarm_name_hint">Ex : Réveil, Travail</string>
+    <string name="alarm_time_label">Heure</string>
+    <string name="alarm_days_label">Jours</string>
+    <string name="alarm_snooze_label">Durée du rappel</string>
+    <string name="alarm_save">Enregistrer</string>
+    <string name="alarm_cancel">Annuler</string>
+    <string name="alarm_delete">Supprimer</string>
+    <string name="alarm_dismiss">Arrêter</string>
+    <string name="alarm_snooze">Rappel</string>
+    <string name="alarm_notification_title">Alarme en cours</string>
+    <string name="alarm_snooze_min">%d min</string>
+    <string name="alarm_ringtone_label">Sonnerie</string>
+    <string name="alarm_ringtone_default">Par défaut</string>
+    <string name="alarm_recurring">Récurrent</string>
+    <string name="alarm_one_time">Ponctuel</string>
+    <string name="alarm_deactivates_silent_mode">Désactiver le mode silencieux</string>
+    <string name="alarm_perm_overlay">Affichage par-dessus les autres applis</string>
+    <string name="alarm_perm_overlay_desc">Nécessaire pour afficher l\'alarme sur l\'écran verrouillé</string>
+    <!-- Wearables -->
+    <string name="menu_miband">Mi Band 4</string>
+    <string name="menu_gear">Samsung Gear</string>
+
+    <string name="help_section_camera">Caméra réseau</string>
+    <string name="help_camera_title">Fonctionnement</string>
+    <string name="help_camera_body">Le téléphone sert de caméra réseau en diffusant un flux MJPEG via HTTP.\n\nPour l\'utiliser :\n1. Ouvrez la section Caméra réseau\n2. Accordez la permission caméra\n3. Appuyez sur Démarrer\n4. Ouvrez l\'URL affichée dans un navigateur sur le même réseau WiFi\n\nLe flux est compatible avec OBS (source Navigateur) et tout logiciel supportant MJPEG.</string>
+</resources>

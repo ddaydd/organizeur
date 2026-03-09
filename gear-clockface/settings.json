@@ -1,0 +1,12 @@
+{
+  "timeColor": "#ffffff",
+  "timeSize": 86,
+  "dateColor": "#aaaaaa",
+  "dateSize": 20,
+  "secondsColor": "#4fc3f7",
+  "secondsShow": true,
+  "batteryShow": true,
+  "dayShow": true,
+  "colonBlink": true,
+  "bgColor": "#000000"
+}

@@ -1,0 +1,71 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 320px;
+    height: 320px;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Samsung Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+#clock {
+    width: 320px;
+    height: 320px;
+    position: relative;
+}
+
+#date-line {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: #aaa;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#time-line {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 86px;
+    font-weight: 200;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+#colon {
+    opacity: 0.6;
+}
+
+#seconds-line {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: 300;
+    color: #4fc3f7;
+}
+
+#info-line {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    color: #888;
+    display: flex;
+    gap: 16px;
+}
+
+#battery {
+    color: #66bb6a;
+}
+
+#sap-status {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    font-size: 10px;
+    color: #555;
+}

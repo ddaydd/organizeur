@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Organizeur - Caméra réseau</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 1.4rem;
+            color: #c9b3ff;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 0 20px 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        input[type="text"] {
+            padding: 10px 14px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #16213e;
+            color: #eee;
+            font-size: 1rem;
+            font-family: monospace;
+            width: 280px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #c9b3ff;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #c9b3ff;
+            color: #1a1a2e;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover { background: #a78bfa; }
+        .stream-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px 20px;
+            width: 100%;
+        }
+        .stream-container img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 8px;
+            display: none;
+        }
+        .placeholder {
+            color: #666;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Organizeur - Caméra réseau</h1>
+    </div>
+    <div class="controls">
+        <input type="text" id="address" placeholder="192.168.1.x:8080" value="">
+        <button onclick="connect()">Connecter</button>
+    </div>
+    <div class="stream-container">
+        <img id="stream" alt="Flux caméra">
+        <span class="placeholder" id="placeholder">Entrez l'adresse du téléphone et cliquez Connecter</span>
+    </div>
+
+    <script>
+        function connect() {
+            var addr = document.getElementById('address').value.trim();
+            if (!addr) return;
+            if (!addr.startsWith('http://') && !addr.startsWith('https://')) {
+                addr = 'http://' + addr;
+            }
+            if (!addr.endsWith('/stream')) {
+                if (!addr.endsWith('/')) addr += '/';
+                addr += 'stream';
+            }
+            var img = document.getElementById('stream');
+            var placeholder = document.getElementById('placeholder');
+            img.src = addr;
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            img.onerror = function() {
+                img.style.display = 'none';
+                placeholder.textContent = 'Impossible de se connecter. Vérifiez l\'adresse et le réseau.';
+                placeholder.style.display = 'block';
+            };
+        }
+
+        // Auto-connect if URL has ?ip= parameter
+        var params = new URLSearchParams(window.location.search);
+        if (params.has('ip')) {
+            document.getElementById('address').value = params.get('ip');
+            connect();
+        }
+    </script>
+</body>
+</html>

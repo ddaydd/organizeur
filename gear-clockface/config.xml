@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets"
+        id="http://organizeur.com/gear-clock" version="1.3.0" viewmodes="maximized">
+    <name>Organizeur</name>
+    <icon src="icon.png"/>
+    <content src="index.html"/>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+    <feature name="http://developer.samsung.com/privilege/accessoryprotocol"/>
+    <tizen:application id="organizeur.clock" package="organizeur" required_version="2.2"/>
+    <tizen:category name="com.samsung.wmanager.WATCH_CLOCK"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/accessoryprotocol"/>
+    <tizen:metadata key="AccessoryServicesLocation" value="/res/xml/accessoryservices.xml"/>
+</widget>
