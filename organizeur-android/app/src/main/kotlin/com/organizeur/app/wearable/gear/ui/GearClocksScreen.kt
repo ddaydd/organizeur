@@ -72,6 +72,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Slider
 import kotlin.math.roundToInt
 import com.organizeur.app.wearable.gear.sap.GearManager
 import java.io.ByteArrayOutputStream
@@ -519,6 +520,7 @@ private fun DraggableWatchPreview(
     batteryColor: String,
     secondsShow: Boolean,
     batteryShow: Boolean,
+    fontWeight: FontWeight = FontWeight.Light,
     timePosX: Float, timePosY: Float, onTimePos: (Float, Float) -> Unit,
     datePosX: Float, datePosY: Float, onDatePos: (Float, Float) -> Unit,
     secPosX: Float, secPosY: Float, onSecPos: (Float, Float) -> Unit,
@@ -558,31 +560,32 @@ private fun DraggableWatchPreview(
             text = dateText.uppercase(),
             color = parseHexColor(dateColor) ?: Color.Gray,
             fontSize = 20f,
+            fontWeight = fontWeight,
             letterSpacing = 2f,
             posX = datePosX, posY = datePosY,
             scale = scale,
             onDrag = onDatePos,
         )
 
-        // Time — CSS: 86px, font-weight 200 (Samsung Sans falls back to normal)
+        // Time — CSS: 86px
         DraggableLabel(
             text = timeText,
             color = parseHexColor(timeColor) ?: Color.White,
             fontSize = 86f,
-            fontWeight = FontWeight.Light,
+            fontWeight = fontWeight,
             letterSpacing = -2f,
             posX = timePosX, posY = timePosY,
             scale = scale,
             onDrag = onTimePos,
         )
 
-        // Seconds — CSS: 28px, font-weight 300
+        // Seconds — CSS: 28px
         if (secondsShow) {
             DraggableLabel(
                 text = secText,
                 color = parseHexColor(secondsColor) ?: Color.Cyan,
                 fontSize = 28f,
-                fontWeight = FontWeight.Light,
+                fontWeight = fontWeight,
                 posX = secPosX, posY = secPosY,
                 scale = scale,
                 onDrag = onSecPos,
@@ -595,6 +598,7 @@ private fun DraggableWatchPreview(
                 text = "85%",
                 color = parseHexColor(batteryColor) ?: Color.Gray,
                 fontSize = 16f,
+                fontWeight = fontWeight,
                 posX = infoPosX, posY = infoPosY,
                 scale = scale,
                 onDrag = onInfoPos,
@@ -658,11 +662,24 @@ private fun DraggableLabel(
     )
 }
 
+private fun cssFontWeightToCompose(weight: Int): FontWeight = when (weight) {
+    100 -> FontWeight.Thin
+    200 -> FontWeight.ExtraLight
+    300 -> FontWeight.Light
+    400 -> FontWeight.Normal
+    500 -> FontWeight.Medium
+    600 -> FontWeight.SemiBold
+    700 -> FontWeight.Bold
+    800 -> FontWeight.ExtraBold
+    900 -> FontWeight.Black
+    else -> FontWeight.ExtraLight
+}
+
 private const val CLOCK_SETTINGS_PREFS = "clock_settings"
 
 private fun saveClockSettings(context: android.content.Context, bgImage: String?,
     timeColor: String, dateColor: String, secondsColor: String, batteryColor: String, bgColor: String,
-    secondsShow: Boolean, batteryShow: Boolean, colonBlink: Boolean,
+    secondsShow: Boolean, batteryShow: Boolean, colonBlink: Boolean, fontWeight: Int,
     timePosX: Float, timePosY: Float, datePosX: Float, datePosY: Float,
     secPosX: Float, secPosY: Float, infoPosX: Float, infoPosY: Float,
 ) {
@@ -676,6 +693,7 @@ private fun saveClockSettings(context: android.content.Context, bgImage: String?
         .putBoolean("secondsShow", secondsShow)
         .putBoolean("batteryShow", batteryShow)
         .putBoolean("colonBlink", colonBlink)
+        .putInt("fontWeight", fontWeight)
         .putFloat("timePosX", timePosX).putFloat("timePosY", timePosY)
         .putFloat("datePosX", datePosX).putFloat("datePosY", datePosY)
         .putFloat("secPosX", secPosX).putFloat("secPosY", secPosY)
@@ -698,6 +716,7 @@ private fun OrganizeurSettingsCard(
     var secondsShow by remember { mutableStateOf(prefs.getBoolean("secondsShow", true)) }
     var batteryShow by remember { mutableStateOf(prefs.getBoolean("batteryShow", true)) }
     var colonBlink by remember { mutableStateOf(prefs.getBoolean("colonBlink", true)) }
+    var fontWeightValue by remember { mutableStateOf(prefs.getInt("fontWeight", 200)) }
     var bgImageBase64 by remember { mutableStateOf(prefs.getString("bgImage", null)) }
     var bgImagePreview by remember {
         mutableStateOf(
@@ -824,6 +843,29 @@ private fun OrganizeurSettingsCard(
             SettingSwitch("Batterie", batteryShow) { batteryShow = it }
             SettingSwitch("Clignotement :", colonBlink) { colonBlink = it }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Font weight slider
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Epaisseur", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    "$fontWeightValue",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Slider(
+                value = fontWeightValue.toFloat(),
+                onValueChange = { fontWeightValue = (it / 100).roundToInt() * 100 },
+                valueRange = 100f..900f,
+                steps = 7,
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Position des elements", style = MaterialTheme.typography.labelMedium)
@@ -847,6 +889,7 @@ private fun OrganizeurSettingsCard(
                     batteryColor = batteryColor,
                     secondsShow = secondsShow,
                     batteryShow = batteryShow,
+                    fontWeight = cssFontWeightToCompose(fontWeightValue),
                     timePosX = timePosX, timePosY = timePosY,
                     onTimePos = { x, y -> timePosX = x; timePosY = y },
                     datePosX = datePosX, datePosY = datePosY,
@@ -871,6 +914,7 @@ private fun OrganizeurSettingsCard(
                         "secondsShow" to secondsShow,
                         "batteryShow" to batteryShow,
                         "colonBlink" to colonBlink,
+                        "fontWeight" to fontWeightValue,
                         "bgImage" to (bgImageBase64 ?: ""),
                         "timePosX" to timePosX.roundToInt(),
                         "timePosY" to timePosY.roundToInt(),
@@ -884,7 +928,7 @@ private fun OrganizeurSettingsCard(
                     onApply(settings)
                     saveClockSettings(context, bgImageBase64,
                         timeColor, dateColor, secondsColor, batteryColor, bgColor,
-                        secondsShow, batteryShow, colonBlink,
+                        secondsShow, batteryShow, colonBlink, fontWeightValue,
                         timePosX, timePosY, datePosX, datePosY,
                         secPosX, secPosY, infoPosX, infoPosY)
                 },

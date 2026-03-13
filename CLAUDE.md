@@ -22,6 +22,19 @@ cd organizeur-android
 ~/Android/Sdk/platform-tools/adb install -r organizeur-android/app/build/outputs/apk/debug/organizeur-vX.Y.apk
 ```
 
+## Deploy Gear Clock Face
+
+```bash
+# Watch must be connected USB (charging cradle) with debug enabled
+cd gear-clockface
+bash deploy.sh
+# Builds into build/, signs with OrganizeurProfile, installs via sdb
+```
+
+- **TOUJOURS utiliser `deploy.sh`** — ne PAS packager manuellement avec `zip` ou `tizen package` depuis le dossier racine (inclut `.gitignore`, `deploy.sh`, `build/` dans le wgt → signature invalide ou package corrompu)
+- `deploy.sh` copie les fichiers dans `build/`, injecte `settings.json` dans `index.html`, signe avec `tizen package -s OrganizeurProfile`, installe via `sdb`
+- Tizen SDK : `~/tizen-studio/tools/sdb` (devices, push, shell) et `~/tizen-studio/tools/ide/bin/tizen` (package, install)
+
 ## Project Structure
 
 The actual project root is `organizeur-android/` (nested inside the repo root). All gradle commands run from there.

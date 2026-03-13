@@ -8,5 +8,6 @@
   "batteryShow": true,
   "dayShow": true,
   "colonBlink": true,
-  "bgColor": "#000000"
+  "bgColor": "#000000",
+  "fontWeight": 200
 }

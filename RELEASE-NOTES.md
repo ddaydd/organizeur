@@ -1,5 +1,14 @@
 # Release Notes
 
+## 2026-03-13
+
+### Cadran Gear — Reglage epaisseur du texte (font-weight)
+- Nouveau slider "Epaisseur" dans les reglages du cadran Organizeur (100 Thin → 900 Black)
+- Applique le font-weight a tous les elements texte (heure, date, secondes, batterie)
+- Preview en temps reel sur le telephone avant envoi
+- Envoye a la montre via SAP, persiste en localStorage
+- Fichiers modifies : `gear-clockface/clock.js`, `gear-clockface/settings.json`, `GearClocksScreen.kt`
+
 ## 2026-03-03
 
 ### Cadran Organizeur — SAP privilege ACE fix

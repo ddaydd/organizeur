@@ -57,6 +57,13 @@
         elBattery.style.display = (S.batteryShow === false) ? 'none' : '';
         if (S.batteryColor) elBattery.style.color = S.batteryColor;
 
+        // Font weight (applies to all text elements)
+        var fw = S.fontWeight || 200;
+        timeLine.style.fontWeight = fw;
+        elDate.style.fontWeight = fw;
+        elSecondsLine.style.fontWeight = fw;
+        elInfoLine.style.fontWeight = fw;
+
         // Position elements (defaults approximate centered layout)
         positionElement(elDate, S.datePosX != null ? S.datePosX : 160, S.datePosY != null ? S.datePosY : 100);
         positionElement(timeLine, S.timePosX != null ? S.timePosX : 160, S.timePosY != null ? S.timePosY : 155);
