@@ -1,5 +1,12 @@
 # Release Notes
 
+## 2026-05-26
+
+### Fix alarme sur écran verrouillé
+- Suppression de `requestDismissKeyguard()` dans `AlarmRingingActivity` — forçait le déverrouillage PIN/empreinte avant de pouvoir interagir avec l'alarme
+- Suppression de `FLAG_DISMISS_KEYGUARD` dans l'overlay de `AlarmService`
+- L'alarme s'affiche maintenant directement par-dessus le lock screen sans demander de déverrouillage
+
 ## 2026-03-13
 
 ### Cadran Gear — Reglage epaisseur du texte (font-weight)

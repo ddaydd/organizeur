@@ -1,7 +1,5 @@
 package com.organizeur.app.alarm
 
-import android.app.KeyguardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
@@ -49,9 +47,6 @@ class AlarmRingingActivity : ComponentActivity() {
         setShowWhenLocked(true)
         setTurnScreenOn(true)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        keyguardManager.requestDismissKeyguard(this, null)
 
         val alarmId = intent?.getStringExtra(AlarmService.EXTRA_ALARM_ID) ?: ""
         val repository = AlarmRepository(this)
