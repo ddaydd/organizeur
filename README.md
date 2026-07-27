@@ -32,6 +32,22 @@ Alarmes qui sonnent même en mode silencieux, avec désactivation automatique du
 - Re-planification automatique au boot
 - Indication "Désactive le mode silencieux" quand une alarme tombe pendant une plage
 
+### Chronomètre et minuteurs
+
+Deux onglets dans une même section : minuteurs à compte à rebours et chronomètre.
+
+**Minuteurs**
+- Liste de minuteurs nommés (durée en heures / minutes / secondes, sonnerie au choix)
+- Démarrage, pause, reprise, réinitialisation, + 1 min
+- Déclenchement exact via `AlarmManager.setAlarmClock()` : fiable appli fermée, téléphone en veille, et replanifié au boot
+- Notification permanente avec décompte natif et actions « + 1 min » / « Arrêter »
+- Sonnerie identique aux alarmes (bypass DND, overlay écran verrouillé), sans rappel
+
+**Chronomètre**
+- Affichage aux centièmes, tours (laps) avec temps du tour et temps total
+- Temps recalculé depuis l'instant de départ : juste même appli fermée
+- Notification permanente avec Pause / Reprendre / Réinitialiser
+
 ### Caméra réseau (MJPEG)
 
 Le téléphone sert de caméra de surveillance accessible via navigateur web.
@@ -81,6 +97,7 @@ organizeur-android/          ← Application Android (Kotlin + Jetpack Compose)
 │   │   ├── callfilter/      ← Filtrage d'appels
 │   │   ├── silentmode/      ← Mode silencieux programmable
 │   │   ├── alarm/           ← Réveil
+│   │   ├── timer/           ← Minuteurs et chronomètre
 │   │   ├── camera/          ← Caméra réseau MJPEG
 │   │   ├── wearable/
 │   │   │   ├── miband/      ← Mi Band 4 (BLE)
@@ -109,13 +126,13 @@ organizeur-desktop/          ← Companion desktop (Meteor)
 ```bash
 cd organizeur-android
 ./gradlew assembleDebug
-# APK → app/build/outputs/apk/debug/organizeur-v1.6.apk
+# APK → app/build/outputs/apk/debug/organizeur-v1.7.apk
 ```
 
 ## Installation
 
 ```bash
-adb install -r organizeur-android/app/build/outputs/apk/debug/organizeur-v1.6.apk
+adb install -r organizeur-android/app/build/outputs/apk/debug/organizeur-v1.7.apk
 ```
 
 ## Licence

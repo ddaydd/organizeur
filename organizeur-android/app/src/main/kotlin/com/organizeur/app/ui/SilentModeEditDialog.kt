@@ -312,7 +312,7 @@ fun TimePickerRow(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun WheelPicker(
+fun WheelPicker(
     value: Int,
     range: IntRange,
     onValueChange: (Int) -> Unit

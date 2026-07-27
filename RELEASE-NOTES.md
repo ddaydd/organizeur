@@ -1,5 +1,22 @@
 # Release Notes
 
+## 2026-07-27
+
+### Chronomètre et minuteurs (v1.7, versionCode 8)
+- Nouvelle entrée « Chronomètre » sur le tableau de bord, deux onglets, masquable depuis Configuration
+- **Minuteurs** : liste de minuteurs nommés (durée h/m/s, sonnerie au choix), démarrer / pause / reprendre / réinitialiser / +1 min, barre de progression, durées rapides
+- Déclenchement par `AlarmManager.setAlarmClock()` : exact appli fermée ou téléphone en veille, replanifié au boot ; l'exemption « réveil » permet de lancer le service de sonnerie depuis l'arrière-plan
+- Notification de décompte permanente rendue par le chronomètre natif (`setUsesChronometer` + `setChronometerCountDown`) — aucun service ni tick en arrière-plan
+- À l'échéance : sonnerie et overlay écran verrouillé des alarmes, sans bouton Rappel
+- **Chronomètre** : affichage aux centièmes, tours avec temps du tour et temps total, notification Pause / Reprendre / Réinitialiser
+- État dérivé de timestamps absolus, jamais décompté : reste juste après fermeture de l'appli ou redémarrage
+- `TimerController` = point d'entrée unique (repository + AlarmManager + notifications), partagé par l'UI Compose et `TimerReceiver`
+- `AlarmService` accepte une action `START_TIMER` (libellé libre, sans rappel) pour ne pas dupliquer sonnerie + overlay MIUI
+- Request codes AlarmManager en 200 000–289 999, hors plage des alarmes (100 000–189 999)
+- Permission `POST_NOTIFICATIONS` ajoutée (requise depuis Android 13), demandée à la première ouverture de l'écran
+- Nouveaux fichiers : `timer/` (CountdownTimer, Stopwatch, TimerRepository, TimerScheduler, TimerNotifier, TimerController, TimerReceiver), `ui/TimerScreen.kt`, `ui/TimerEditDialog.kt`
+- Validé sur appareil : déclenchement confirmé par `dumpsys alarm` (1 wakeup `TIMER_FIRE`), sonnerie confirmée par David
+
 ## 2026-05-26
 
 ### Fix alarme sur écran verrouillé

@@ -29,6 +29,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.organizeur.app.MainActivity
 import com.organizeur.app.R
 import com.organizeur.app.silentmode.SilentModeEnforcer
 import java.text.SimpleDateFormat
@@ -72,7 +73,12 @@ class AlarmService : Service() {
                 }
 
                 // Start foreground with notification
-                val notification = buildNotification(alarmId, alarmName)
+                val notification = buildNotification(
+                    alarmId = alarmId,
+                    alarmName = alarmName,
+                    title = getString(R.string.alarm_notification_title),
+                    showSnooze = true
+                )
                 startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
 
                 // Set alarm volume to max
@@ -90,7 +96,34 @@ class AlarmService : Service() {
                 startVibration()
 
                 // Show overlay (works on MIUI where activity launch is blocked)
-                showOverlay(ringingAlarmName ?: alarmName)
+                showOverlay(ringingAlarmName ?: alarmName, showSnooze = true)
+            }
+
+            ACTION_START_TIMER -> {
+                // Minuteur écoulé : même sonnerie/overlay que les alarmes, sans rappel
+                currentAlarmId = null
+                val label = intent.getStringExtra(EXTRA_TIMER_LABEL)?.ifBlank { null }
+                    ?: getString(R.string.timer_notification_title)
+                ringingAlarmName = label
+
+                val notification = buildNotification(
+                    alarmId = null,
+                    alarmName = label,
+                    title = getString(R.string.timer_notification_title),
+                    showSnooze = false
+                )
+                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+
+                val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                audioManager.setStreamVolume(
+                    AudioManager.STREAM_ALARM,
+                    audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM),
+                    0
+                )
+
+                startAlarmSound(intent.getStringExtra(EXTRA_RINGTONE_URI)?.let { Uri.parse(it) })
+                startVibration()
+                showOverlay(label, showSnooze = false)
             }
 
             ACTION_DISMISS -> {
@@ -167,7 +200,7 @@ class AlarmService : Service() {
         vibrator?.vibrate(VibrationEffect.createWaveform(pattern, 0)) // repeat from index 0
     }
 
-    private fun showOverlay(alarmName: String) {
+    private fun showOverlay(alarmName: String, showSnooze: Boolean) {
         if (!Settings.canDrawOverlays(this)) return
         try {
             val wm = getSystemService(WINDOW_SERVICE) as WindowManager
@@ -269,10 +302,12 @@ class AlarmService : Service() {
                 addView(confirmView)
                 addView(dismissButton, LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, dp(64)
-                ).apply { bottomMargin = dp(16) })
-                addView(snoozeButton, LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, dp(56)
-                ))
+                ).apply { if (showSnooze) bottomMargin = dp(16) })
+                if (showSnooze) {
+                    addView(snoozeButton, LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, dp(56)
+                    ))
+                }
             }
 
             val params = WindowManager.LayoutParams(
@@ -339,10 +374,19 @@ class AlarmService : Service() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun buildNotification(alarmId: String, alarmName: String): Notification {
-        // Full-screen intent for the ringing activity
-        val fullScreenIntent = Intent(this, AlarmRingingActivity::class.java).apply {
-            putExtra(EXTRA_ALARM_ID, alarmId)
+    private fun buildNotification(
+        alarmId: String?,
+        alarmName: String,
+        title: String,
+        showSnooze: Boolean
+    ): Notification {
+        // Full-screen intent for the ringing activity (MainActivity for timers, which have no alarm id)
+        val fullScreenIntent = if (alarmId != null) {
+            Intent(this, AlarmRingingActivity::class.java).apply {
+                putExtra(EXTRA_ALARM_ID, alarmId)
+            }
+        } else {
+            Intent(this, MainActivity::class.java)
         }
         val fullScreenPendingIntent = PendingIntent.getActivity(
             this, 0, fullScreenIntent,
@@ -367,8 +411,8 @@ class AlarmService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.alarm_notification_title))
+        val builder = Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle(title)
             .setContentText(alarmName)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setCategory(Notification.CATEGORY_ALARM)
@@ -380,19 +424,26 @@ class AlarmService : Service() {
                     null, getString(R.string.alarm_dismiss), dismissPendingIntent
                 ).build()
             )
-            .addAction(
+
+        if (showSnooze) {
+            builder.addAction(
                 Notification.Action.Builder(
                     null, getString(R.string.alarm_snooze), snoozePendingIntent
                 ).build()
             )
-            .build()
+        }
+
+        return builder.build()
     }
 
     companion object {
         const val ACTION_START_ALARM = "com.organizeur.app.alarm.START_ALARM"
+        const val ACTION_START_TIMER = "com.organizeur.app.alarm.START_TIMER"
         const val ACTION_DISMISS = "com.organizeur.app.alarm.DISMISS"
         const val ACTION_SNOOZE = "com.organizeur.app.alarm.SNOOZE"
         const val EXTRA_ALARM_ID = "alarm_id"
+        const val EXTRA_TIMER_LABEL = "timer_label"
+        const val EXTRA_RINGTONE_URI = "ringtone_uri"
         const val NOTIFICATION_ID = 3001
         const val CHANNEL_ID = "alarm_ringing"
 

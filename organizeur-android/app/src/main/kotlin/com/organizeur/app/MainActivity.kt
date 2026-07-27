@@ -19,6 +19,7 @@ import com.organizeur.app.settings.SettingsManager
 import com.organizeur.app.silentmode.SilentModeAlarmScheduler
 import com.organizeur.app.silentmode.SilentModeEnforcer
 import com.organizeur.app.silentmode.SilentModeManager
+import com.organizeur.app.timer.TimerController
 import com.organizeur.app.ui.MainScreen
 import com.organizeur.app.ui.theme.OrganizeurTheme
 import com.organizeur.app.wearable.miband.MiBand4Manager
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
         val cameraManager = CameraManager(this)
         val alarmRepository = AlarmRepository(this)
         val alarmScheduler = AlarmScheduler(this)
+        val timerController = TimerController(this)
 
         bandManager = MiBand4Manager(applicationContext)
         gearManager = GearManager(applicationContext)
@@ -71,6 +73,7 @@ class MainActivity : ComponentActivity() {
         // Re-schedule alarms on app start (in case they were lost)
         silentModeScheduler.scheduleAllAlarms(silentModeManager)
         alarmScheduler.scheduleAllAlarms(alarmRepository)
+        timerController.rescheduleAll()
 
         setContent {
             OrganizeurTheme {
@@ -82,6 +85,7 @@ class MainActivity : ComponentActivity() {
                     cameraManager = cameraManager,
                     alarmRepository = alarmRepository,
                     alarmScheduler = alarmScheduler,
+                    timerController = timerController,
                     bandManager = bandManager,
                     gearManager = gearManager,
                     onRequestBtPermissions = ::requestBtPermissions

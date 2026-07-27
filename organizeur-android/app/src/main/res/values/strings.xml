@@ -144,6 +144,38 @@
     <string name="alarm_deactivates_silent_mode">Désactiver le mode silencieux</string>
     <string name="alarm_perm_overlay">Affichage par-dessus les autres applis</string>
     <string name="alarm_perm_overlay_desc">Nécessaire pour afficher l\'alarme sur l\'écran verrouillé</string>
+
+    <!-- Chronomètre et minuteurs -->
+    <string name="menu_timer">Chronomètre</string>
+    <string name="timer_tab_countdown">Minuteur</string>
+    <string name="timer_tab_stopwatch">Chronomètre</string>
+    <string name="timer_description">Minuteurs à compte à rebours : la sonnerie retentit même en mode silencieux, et le décompte continue quand l\'appli est fermée.</string>
+    <string name="timer_add">Ajouter un minuteur</string>
+    <string name="timer_no_timers">Aucun minuteur configuré</string>
+    <string name="timer_edit_title">Modifier le minuteur</string>
+    <string name="timer_new_title">Nouveau minuteur</string>
+    <string name="timer_name_hint">Ex : Œufs, Lessive</string>
+    <string name="timer_default_label">Minuteur</string>
+    <string name="timer_duration_label">Durée</string>
+    <string name="timer_unit_hours">h</string>
+    <string name="timer_unit_minutes">m</string>
+    <string name="timer_unit_seconds">s</string>
+    <string name="timer_start">Démarrer</string>
+    <string name="timer_pause">Pause</string>
+    <string name="timer_resume">Reprendre</string>
+    <string name="timer_stop">Arrêter</string>
+    <string name="timer_reset">Réinitialiser</string>
+    <string name="timer_lap">Tour</string>
+    <string name="timer_lap_number">Tour %d</string>
+    <string name="timer_add_minute">+ 1 min</string>
+    <string name="timer_delete">Supprimer</string>
+    <string name="timer_state_paused">En pause</string>
+    <string name="timer_channel_name">Minuteurs et chronomètre</string>
+    <string name="timer_notification_title">Minuteur terminé</string>
+    <string name="timer_notif_paused">En pause · %s restant</string>
+    <string name="timer_notif_add_minute">+ 1 min</string>
+    <string name="timer_perm_alarm_desc">Autorisez les alarmes exactes pour que les minuteurs sonnent à l\'heure</string>
+
     <!-- Wearables -->
     <string name="menu_miband">Mi Band 4</string>
     <string name="menu_gear">Samsung Gear</string>

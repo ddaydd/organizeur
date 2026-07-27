@@ -49,11 +49,12 @@ organizeur-android/          ← gradle project root (run ./gradlew from here)
     │   ├── camera/                   ← MJPEG streaming (MjpegServer, MjpegStreamingService, CameraManager, NetworkUtils)
     │   ├── settings/                ← SharedPreferences for call filter settings
     │   ├── silentmode/              ← scheduled DND/volume control (Manager, Enforcer, AlarmScheduler, Receiver)
+    │   ├── timer/                   ← countdown timers + stopwatch (CountdownTimer, Stopwatch, TimerRepository, TimerScheduler, TimerNotifier, TimerController, TimerReceiver)
     │   ├── wearable/               ← wearable device integration
     │   │   ├── model/              ← shared models (BandState, DeviceInfo, DeviceType)
     │   │   ├── miband/             ← Mi Band 4 BLE (Manager, Auth, Constants, ui/, watchface/)
     │   │   └── gear/sap/           ← Samsung Gear 1 RFCOMM+SAP (GearManager, SapProtocol, SapFraming, ui/)
-    │   └── ui/                      ← Jetpack Compose UI (MainScreen, CameraScreen, SilentModeSection, SilentModeEditDialog, AlarmSection, AlarmEditDialog, theme)
+    │   └── ui/                      ← Jetpack Compose UI (MainScreen, CameraScreen, SilentModeSection, SilentModeEditDialog, AlarmSection, AlarmEditDialog, TimerScreen, TimerEditDialog, theme)
     ├── java/com/sec/android/WSM/   ← Samsung WSM JNI wrappers (DO NOT change package — JNI lookup)
     ├── jniLibs/{arm64-v8a,armeabi-v7a}/ ← native .so (libwsm2, libssl, libcrypto)
     ├── res/values/strings.xml       ← all strings in French
@@ -66,13 +67,14 @@ organizeur-android/          ← gradle project root (run ./gradlew from here)
 - **No ViewModel/Room/DI**: managers are plain classes instantiated in `onCreate()`
 - **Persistence**: `SharedPreferences` with JSON (`org.json`) for complex data (silent mode schedules)
 - **Minimal external dependencies**: AndroidX Compose/Material3, CameraX, blessed-android-coroutines (BLE)
-- **Six features**:
+- **Seven features**:
   1. **Call filtering** (`callfilter/`): Android `CallScreeningService` blocks/silences unknown callers
   2. **Scheduled silent mode** (`silentmode/`): `AlarmManager` triggers `BroadcastReceiver` → `SilentModeEnforcer` applies DND + volume changes
   3. **Network camera** (`camera/`): MJPEG streaming via foreground service + raw `ServerSocket`. CameraX `ImageAnalysis` → YUV→NV21→JPEG → HTTP multipart stream
   4. **Alarm clock** (`alarm/`): Alarms that bypass DND via `USAGE_ALARM` AudioAttributes. Auto-deactivates silent mode when ringing. Foreground service with `mediaPlayback` type, overlay window on lock screen (MIUI workaround), snooze support, sonnerie personnalisable par alarme
   5. **Mi Band 4** (`wearable/miband/`): BLE connection via blessed-android, custom AES auth, battery/HR/steps, music controls, watchface editor + upload (DFU protocol)
   6. **Samsung Gear 1** (`wearable/gear/`): Bluetooth Classic RFCOMM + SAP protocol, WSM auth (JNI native libs), time sync
+  7. **Timers & stopwatch** (`timer/`): countdown timers scheduled with `setAlarmClock()` (ring via `AlarmService.ACTION_START_TIMER`, no snooze) + stopwatch with laps. All state is derived from absolute timestamps, never ticked. `TimerController` is the single entry point (repository + scheduler + notifications), shared by the Compose UI and `TimerReceiver`
 
 ## Key Technical Details
 
@@ -96,6 +98,9 @@ organizeur-android/          ← gradle project root (run ./gradlew from here)
 - **AlarmScheduler request codes** : `100_000 + abs(hashCode * 10 + day) % 90_000` pour éviter collision avec les request codes du mode silencieux (`scheduleId.hashCode() * 10 + day`)
 - **"Désactive" scheduling logic** : pour les plages silencieuses overnight ou sans fin, vérifier le jour précédent (`prevDay`). Pour éviter les faux positifs, comparer l'offset (minutes depuis le début de la plage) de chaque alarme pour ne montrer "Désactive" que sur la première alarme à se déclencher dans la fenêtre
 - **MIUI/Xiaomi bloque `startActivity` depuis un service/receiver** même avec `setAlarmClock()` + alarm clock exemption. `fullScreenIntent` sur les notifications ne s'affiche pas non plus. Seule solution fiable : overlay `SYSTEM_ALERT_WINDOW` avec `TYPE_APPLICATION_OVERLAY` + flags lock screen. Aussi, MIUI supprime les messages logcat (Log.d/w) — utiliser un fichier debug si besoin (`adb shell run-as com.organizeur.app cat files/debug.log`)
+- **Minuteurs** : request codes AlarmManager dans la plage `200_000 + abs(id.hashCode()) % 90_000` pour ne pas entrer en collision avec ceux des alarmes (100_000..189_999). Le décompte affiché dans la notification utilise le chronomètre natif (`setUsesChronometer` + `setChronometerCountDown` + `setWhen(endAt)`) : aucun service ni tick n'est nécessaire pour le tenir à jour. Les actions d'une notification ont chacune besoin d'un request code distinct (les extras ne comptent pas dans l'égalité des `Intent`, deux minuteurs partageraient sinon le même `PendingIntent`)
+- **Vérifier qu'une alarme/un minuteur s'est réellement déclenché** (aucun log applicatif, et MIUI les supprime) : `adb shell dumpsys alarm | grep -A10 "com.organizeur.app +"` → compteur par tag, ex. `*walarm*:com.organizeur.app.TIMER_FIRE` avec `1 wakes 1 alarms, last -1m37s`. `dumpsys notification | grep -A40 "pkg=com.organizeur.app"` donne `when=`, `android.showChronometer`, `android.chronometerCountDown` ; l'état persisté se lit via `adb shell run-as com.organizeur.app cat /data/data/com.organizeur.app/shared_prefs/timer_prefs.xml`
+- **`POST_NOTIFICATIONS`** est requis depuis Android 13 pour que les notifications s'affichent (y compris celles d'un foreground service) — demandée à l'ouverture de l'écran Chronomètre
 - **AlarmService.ringingAlarmName** : variable statique `companion object` pour communiquer l'état "en train de sonner" du service vers l'UI Compose. L'UI poll toutes les 500ms via `LaunchedEffect` + `delay`. Pas de LiveData/Flow pour rester cohérent avec l'archi sans ViewModel
 
 ## Release Process

@@ -31,6 +31,10 @@ class SettingsManager(context: Context) {
         get() = prefs.getBoolean(KEY_ALARM_VISIBLE, true)
         set(value) = prefs.edit().putBoolean(KEY_ALARM_VISIBLE, value).apply()
 
+    var isTimerVisible: Boolean
+        get() = prefs.getBoolean(KEY_TIMER_VISIBLE, true)
+        set(value) = prefs.edit().putBoolean(KEY_TIMER_VISIBLE, value).apply()
+
     var isCameraVisible: Boolean
         get() = prefs.getBoolean(KEY_CAMERA_VISIBLE, true)
         set(value) = prefs.edit().putBoolean(KEY_CAMERA_VISIBLE, value).apply()
@@ -54,6 +58,7 @@ class SettingsManager(context: Context) {
         private const val KEY_CALL_FILTER_VISIBLE = "feature_call_filter_visible"
         private const val KEY_SILENT_MODE_VISIBLE = "feature_silent_mode_visible"
         private const val KEY_ALARM_VISIBLE = "feature_alarm_visible"
+        private const val KEY_TIMER_VISIBLE = "feature_timer_visible"
         private const val KEY_CAMERA_VISIBLE = "feature_camera_visible"
         private const val KEY_HELP_VISIBLE = "feature_help_visible"
         private const val KEY_MIBAND_VISIBLE = "feature_miband_visible"

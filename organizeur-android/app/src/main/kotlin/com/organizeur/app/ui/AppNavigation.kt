@@ -8,6 +8,7 @@ sealed class Screen {
     object Help : Screen()
     object Camera : Screen()
     object Alarm : Screen()
+    object Timer : Screen()
     object MiBandScan : Screen()
     object MiBandDevice : Screen()
     object MiBandWatchface : Screen()

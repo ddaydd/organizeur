@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -82,6 +83,7 @@ import com.organizeur.app.alarm.AlarmRepository
 import com.organizeur.app.alarm.AlarmScheduler
 import com.organizeur.app.alarm.AlarmService
 import com.organizeur.app.silentmode.SilentModeAlarmScheduler
+import com.organizeur.app.timer.TimerController
 import com.organizeur.app.camera.CameraManager
 import com.organizeur.app.silentmode.SilentModeEnforcer
 import com.organizeur.app.silentmode.SilentModeManager
@@ -108,6 +110,7 @@ fun MainScreen(
     cameraManager: CameraManager,
     alarmRepository: AlarmRepository,
     alarmScheduler: AlarmScheduler,
+    timerController: TimerController,
     bandManager: MiBand4Manager,
     gearManager: GearManager,
     onRequestBtPermissions: () -> Unit
@@ -180,6 +183,10 @@ fun MainScreen(
             repository = alarmRepository,
             scheduler = alarmScheduler,
             silentModeManager = silentModeManager,
+            onBack = { currentScreen = Screen.Dashboard }
+        )
+        Screen.Timer -> TimerScreen(
+            controller = timerController,
             onBack = { currentScreen = Screen.Dashboard }
         )
         Screen.MiBandScan -> MiBandScanScreen(
@@ -420,6 +427,14 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                         title = stringResource(R.string.menu_alarm),
                         icon = Icons.Default.DateRange,
                         onClick = { onNavigate(Screen.Alarm) }
+                    )
+                }
+
+                if (settingsManager.isTimerVisible) {
+                    MenuCard(
+                        title = stringResource(R.string.menu_timer),
+                        icon = Icons.Default.Timer,
+                        onClick = { onNavigate(Screen.Timer) }
                     )
                 }
 
@@ -852,6 +867,7 @@ private fun SetupScreen(settingsManager: SettingsManager, onBack: () -> Unit) {
                 var callFilterVisible by remember { mutableStateOf(settingsManager.isCallFilterVisible) }
                 var silentModeVisible by remember { mutableStateOf(settingsManager.isSilentModeVisible) }
                 var alarmVisible by remember { mutableStateOf(settingsManager.isAlarmVisible) }
+                var timerVisible by remember { mutableStateOf(settingsManager.isTimerVisible) }
                 var cameraVisible by remember { mutableStateOf(settingsManager.isCameraVisible) }
                 var helpVisible by remember { mutableStateOf(settingsManager.isHelpVisible) }
                 var miBandVisible by remember { mutableStateOf(settingsManager.isMiBandVisible) }
@@ -879,6 +895,14 @@ private fun SetupScreen(settingsManager: SettingsManager, onBack: () -> Unit) {
                     onCheckedChange = {
                         alarmVisible = it
                         settingsManager.isAlarmVisible = it
+                    }
+                )
+                FeatureToggleRow(
+                    label = stringResource(R.string.menu_timer),
+                    checked = timerVisible,
+                    onCheckedChange = {
+                        timerVisible = it
+                        settingsManager.isTimerVisible = it
                     }
                 )
                 FeatureToggleRow(
