@@ -45,7 +45,7 @@ organizeur-android/          ← gradle project root (run ./gradlew from here)
     ├── kotlin/com/organizeur/app/
     │   ├── MainActivity.kt          ← entry point, wires managers to Compose UI
     │   ├── callfilter/              ← call screening (CallScreeningService + ContactChecker)
-    │   ├── alarm/                    ← alarm clock (Alarm, AlarmRepository, AlarmScheduler, AlarmReceiver, AlarmService, AlarmRingingActivity)
+    │   ├── alarm/                    ← alarm clock (Alarm, AlarmRepository, AlarmScheduler, AlarmReceiver, AlarmService, AlarmRingingActivity, SnoozeNotifier)
     │   ├── camera/                   ← MJPEG streaming (MjpegServer, MjpegStreamingService, CameraManager, NetworkUtils)
     │   ├── settings/                ← SharedPreferences for call filter settings
     │   ├── silentmode/              ← scheduled DND/volume control (Manager, Enforcer, AlarmScheduler, Receiver)
@@ -54,7 +54,7 @@ organizeur-android/          ← gradle project root (run ./gradlew from here)
     │   │   ├── model/              ← shared models (BandState, DeviceInfo, DeviceType)
     │   │   ├── miband/             ← Mi Band 4 BLE (Manager, Auth, Constants, ui/, watchface/)
     │   │   └── gear/sap/           ← Samsung Gear 1 RFCOMM+SAP (GearManager, SapProtocol, SapFraming, ui/)
-    │   └── ui/                      ← Jetpack Compose UI (MainScreen, CameraScreen, SilentModeSection, SilentModeEditDialog, AlarmSection, AlarmEditDialog, TimerScreen, TimerEditDialog, theme)
+    │   └── ui/                      ← Jetpack Compose UI (MainScreen, CameraScreen, SilentModeSection, SilentModeEditDialog, AlarmSection, AlarmEditDialog, TimerScreen, TimerEditDialog, ScreenInfo, theme)
     ├── java/com/sec/android/WSM/   ← Samsung WSM JNI wrappers (DO NOT change package — JNI lookup)
     ├── jniLibs/{arm64-v8a,armeabi-v7a}/ ← native .so (libwsm2, libssl, libcrypto)
     ├── res/values/strings.xml       ← all strings in French
@@ -100,7 +100,12 @@ organizeur-android/          ← gradle project root (run ./gradlew from here)
 - **MIUI/Xiaomi bloque `startActivity` depuis un service/receiver** même avec `setAlarmClock()` + alarm clock exemption. `fullScreenIntent` sur les notifications ne s'affiche pas non plus. Seule solution fiable : overlay `SYSTEM_ALERT_WINDOW` avec `TYPE_APPLICATION_OVERLAY` + flags lock screen. Aussi, MIUI supprime les messages logcat (Log.d/w) — utiliser un fichier debug si besoin (`adb shell run-as com.organizeur.app cat files/debug.log`)
 - **Minuteurs** : request codes AlarmManager dans la plage `200_000 + abs(id.hashCode()) % 90_000` pour ne pas entrer en collision avec ceux des alarmes (100_000..189_999). Le décompte affiché dans la notification utilise le chronomètre natif (`setUsesChronometer` + `setChronometerCountDown` + `setWhen(endAt)`) : aucun service ni tick n'est nécessaire pour le tenir à jour. Les actions d'une notification ont chacune besoin d'un request code distinct (les extras ne comptent pas dans l'égalité des `Intent`, deux minuteurs partageraient sinon le même `PendingIntent`)
 - **Vérifier qu'une alarme/un minuteur s'est réellement déclenché** (aucun log applicatif, et MIUI les supprime) : `adb shell dumpsys alarm | grep -A10 "com.organizeur.app +"` → compteur par tag, ex. `*walarm*:com.organizeur.app.TIMER_FIRE` avec `1 wakes 1 alarms, last -1m37s`. `dumpsys notification | grep -A40 "pkg=com.organizeur.app"` donne `when=`, `android.showChronometer`, `android.chronometerCountDown` ; l'état persisté se lit via `adb shell run-as com.organizeur.app cat /data/data/com.organizeur.app/shared_prefs/timer_prefs.xml`
-- **`POST_NOTIFICATIONS`** est requis depuis Android 13 pour que les notifications s'affichent (y compris celles d'un foreground service) — demandée à l'ouverture de l'écran Chronomètre
+- **Rappel d'alarme (snooze)** : request codes de notification en `300_000 + abs(id.hashCode() * 10 + slot) % 90_000` (alarmes 100_000..189_999, minuteurs 200_000..289_999). L'alarme du rappel réutilise le sentinel `day = 0` de `AlarmScheduler.createPendingIntent`. Toute annulation passe par `cancelSnooze(alarmId)` (alarme AlarmManager + état persisté + notification) — ne jamais annuler seulement l'un des trois. `DEFAULT_SNOOZE_MINUTES` (ui/AlarmSection.kt) doit rester aligné sur le défaut de `Alarm.snoozeDurationMinutes`
+- **`POST_NOTIFICATIONS`** est requis depuis Android 13 pour que les notifications s'affichent (y compris celles d'un foreground service) — demandée à l'ouverture des écrans Chronomètre et Alarmes
+- **Thème** : la palette Organizeur (`ui/theme/Theme.kt`) est le défaut ; les couleurs dynamiques (Material You) sont opt-in via Configuration → Apparence (`SettingsManager.useDynamicColors`). Ne pas remettre `dynamicColorScheme` inconditionnel : avec minSdk 31 il s'applique toujours et rend la palette du projet inutilisée (l'app prend alors les couleurs du fond d'écran)
+- **`@android:style/Theme.Material.DayNight.*` n'existe pas** dans le framework (erreur AAPT « resource not found »). Pour un thème système clair/sombre : `@android:style/Theme.DeviceDefault.DayNight` + `windowActionBar=false` / `windowNoTitle=true` (voir `Theme.Organizeur` dans `res/values/themes.xml`). Ce thème sert de fenêtre de démarrage : son `windowBackground` doit suivre le mode (`values/colors.xml` + `values-night/colors.xml`), sinon flash blanc avant le premier rendu Compose
+- **Les barres système sont masquées** (`MainActivity.onCreate`, `insetsController.hide(systemBars())`) : l'app affiche donc elle-même heure et batterie dans le bandeau, et le contenu colle au bord haut. En tenir compte avant d'ajouter du padding ou de raisonner sur les insets
+- **Valider un changement visuel** : `adb shell screencap -p /sdcard/x.png` + `adb pull`, puis naviguer avec `adb shell input tap X Y` (écran 1080x2424, l'app est verrouillée en portrait). `adb shell input keyevent KEYCODE_BACK` quitte l'app depuis un sous-écran (la flèche de la TopAppBar, elle, revient au tableau de bord)
 - **AlarmService.ringingAlarmName** : variable statique `companion object` pour communiquer l'état "en train de sonner" du service vers l'UI Compose. L'UI poll toutes les 500ms via `LaunchedEffect` + `delay`. Pas de LiveData/Flow pour rester cohérent avec l'archi sans ViewModel
 
 ## Release Process
@@ -110,7 +115,7 @@ Each build is versioned and archived in `releases/`:
 1. **Incrémenter la version** dans `organizeur-android/app/build.gradle.kts` : `versionCode` +1, `versionName` +0.1
 2. **Build** : `./gradlew assembleDebug`
 3. **Créer le dossier** : `releases/vX.Y/`
-4. **Copier l'APK** : `cp app/build/outputs/apk/debug/app-debug.apk ../../releases/vX.Y/`
+4. **Copier l'APK** : `cp organizeur-android/app/build/outputs/apk/debug/organizeur-vX.Y.apk releases/vX.Y/` (l'APK n'est PAS nommé `app-debug.apk`)
 5. **Écrire** `releases/vX.Y/RELEASE_NOTES.md` avec la date, le versionCode, et les changements
 6. **Installer** sur le téléphone via adb (voir section "Install on Device")
 

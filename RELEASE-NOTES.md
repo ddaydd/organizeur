@@ -1,5 +1,32 @@
 # Release Notes
 
+## 2026-09-02
+
+### Rappel d'alarme visible et annulable (v1.8, versionCode 9)
+- Appuyer sur « Rappel » ne laissait aucune trace : rien n'indiquait qu'un rappel était en attente, et il n'y avait aucun moyen de l'annuler
+- État persisté dans `alarm_prefs` (clé `snoozes`, `alarmId → timestamp`), avec purge des échéances passées
+- Notification permanente « Rappel : <nom> » avec heure de sonnerie, décompte rendu par le chronomètre natif (aucun service ni tick) et action **Annuler le rappel** — canal dédié `alarm_snooze`, importance basse, sans son
+- Ligne « Rappel à HH:MM (dans N min) » + bouton d'annulation sur la carte de l'alarme
+- `AlarmScheduler.cancelSnooze(alarmId)` annule d'un bloc l'alarme AlarmManager, l'état persisté et la notification ; `cancelAlarm()` y passe, donc désactiver / modifier / supprimer une alarme nettoie son rappel
+- Les rappels en attente sont reprogrammés au redémarrage (`scheduleAllAlarms`) — ils étaient perdus silencieusement
+- `POST_NOTIFICATIONS` désormais demandée aussi à l'ouverture de l'écran Alarmes
+- Nouveau fichier : `alarm/SnoozeNotifier.kt` ; request codes de notification en 300 000–389 999
+
+### Liste des alarmes triée et allégée
+- Tri par heure, minute puis nom dans `AlarmRepository.getAlarms()` : cohérent pour l'affichage comme pour la planification
+- « Rappel N min » affiché seulement si la durée diffère du défaut (10 min) — la mention ne se répète plus sur chaque carte
+- Alarmes désactivées estompées (alpha 45 %), prochaine alarme mise en avant en `primaryContainer` avec « Prochaine · Dans … »
+- « Dans 16h 47 » se lisait comme une heure → « Dans 16 h 47 min »
+
+### Refonte visuelle (lot 1)
+- **Fin du flash blanc au lancement** : nouveau `Theme.Organizeur` (`res/values/themes.xml`) avec `windowBackground` clair/sombre. Le manifeste pointait sur `Theme.Material.Light.NoActionBar` alors que l'UI est sombre
+- **Palette Organizeur par défaut** : `dynamicColorScheme` s'appliquait inconditionnellement (minSdk 31), la palette ambrée du projet n'était jamais affichée et l'app prenait les couleurs du fond d'écran. Nouvelle carte **Apparence** dans Configuration pour repasser aux couleurs du système (`SettingsManager.useDynamicColors`, défaut `false`)
+- Bandeau du tableau de bord en `primary` au lieu de `primaryContainer`
+- Icônes corrigées : réveil pour Alarmes (c'était un calendrier), cloche barrée pour Mode silencieux (c'était une cloche), caméra, engrenage, point d'interrogation
+- Explications d'écran repliées derrière un bouton « ? » dans la barre de titre (Alarmes, Mode silencieux, Minuteurs), dépliées d'office quand la liste est vide — nouveau `ui/ScreenInfo.kt`
+- FAB en couleur primaire (invisible avec la nouvelle palette) et 96 dp d'espace en fin de liste pour ne plus chevaucher la dernière carte
+- Vérifié écran par écran sur l'appareil (dashboard, alarmes, configuration, bascule de palette dans les deux sens)
+
 ## 2026-07-27
 
 ### Chronomètre et minuteurs (v1.7, versionCode 8)
