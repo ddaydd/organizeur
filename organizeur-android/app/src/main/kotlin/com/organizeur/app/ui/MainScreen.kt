@@ -28,12 +28,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -113,7 +114,9 @@ fun MainScreen(
     timerController: TimerController,
     bandManager: MiBand4Manager,
     gearManager: GearManager,
-    onRequestBtPermissions: () -> Unit
+    onRequestBtPermissions: () -> Unit,
+    dynamicColors: Boolean,
+    onDynamicColorsChange: (Boolean) -> Unit
 ) {
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Dashboard) }
 
@@ -170,6 +173,8 @@ fun MainScreen(
         )
         Screen.Setup -> SetupScreen(
             settingsManager = settingsManager,
+            dynamicColors = dynamicColors,
+            onDynamicColorsChange = onDynamicColorsChange,
             onBack = { currentScreen = Screen.Dashboard }
         )
         Screen.Help -> HelpScreen(
@@ -328,7 +333,7 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = padding.calculateTopPadding())
-                    .background(MaterialTheme.colorScheme.primaryContainer),
+                    .background(MaterialTheme.colorScheme.primary),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -365,13 +370,13 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                     Text(
                         text = "$currentTime  \u2022  $batteryLevel%",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
                     )
                     Text(
                         text = stringResource(R.string.dashboard_title),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -402,7 +407,7 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                         Box(modifier = Modifier.weight(1f)) {
                             MenuCard(
                                 title = stringResource(R.string.menu_silent_mode),
-                                icon = Icons.Default.Notifications,
+                                icon = Icons.Default.NotificationsOff,
                                 vertical = true,
                                 onClick = { onNavigate(Screen.SilentMode) }
                             )
@@ -410,7 +415,7 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                         Box(modifier = Modifier.weight(1f)) {
                             MenuCard(
                                 title = stringResource(R.string.menu_alarm),
-                                icon = Icons.Default.DateRange,
+                                icon = Icons.Default.Alarm,
                                 vertical = true,
                                 onClick = { onNavigate(Screen.Alarm) }
                             )
@@ -419,13 +424,13 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                 } else if (settingsManager.isSilentModeVisible) {
                     MenuCard(
                         title = stringResource(R.string.menu_silent_mode),
-                        icon = Icons.Default.Notifications,
+                        icon = Icons.Default.NotificationsOff,
                         onClick = { onNavigate(Screen.SilentMode) }
                     )
                 } else if (settingsManager.isAlarmVisible) {
                     MenuCard(
                         title = stringResource(R.string.menu_alarm),
-                        icon = Icons.Default.DateRange,
+                        icon = Icons.Default.Alarm,
                         onClick = { onNavigate(Screen.Alarm) }
                     )
                 }
@@ -441,7 +446,7 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                 if (settingsManager.isCameraVisible) {
                     MenuCard(
                         title = stringResource(R.string.menu_camera),
-                        icon = Icons.Default.PlayArrow,
+                        icon = Icons.Default.Videocam,
                         onClick = { onNavigate(Screen.Camera) }
                     )
                 }
@@ -491,7 +496,7 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                         Box(modifier = Modifier.weight(1f)) {
                             MenuCard(
                                 title = stringResource(R.string.menu_setup),
-                                icon = Icons.Default.Build,
+                                icon = Icons.Default.Settings,
                                 vertical = true,
                                 onClick = { onNavigate(Screen.Setup) }
                             )
@@ -499,7 +504,7 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                         Box(modifier = Modifier.weight(1f)) {
                             MenuCard(
                                 title = stringResource(R.string.menu_help),
-                                icon = Icons.Default.Info,
+                                icon = Icons.AutoMirrored.Filled.HelpOutline,
                                 vertical = true,
                                 onClick = { onNavigate(Screen.Help) }
                             )
@@ -508,7 +513,7 @@ private fun DashboardScreen(settingsManager: SettingsManager, onNavigate: (Scree
                 } else {
                     MenuCard(
                         title = stringResource(R.string.menu_setup),
-                        icon = Icons.Default.Build,
+                        icon = Icons.Default.Settings,
                         onClick = { onNavigate(Screen.Setup) }
                     )
                 }
@@ -727,7 +732,12 @@ private fun CallFilterScreen(
 }
 
 @Composable
-private fun SetupScreen(settingsManager: SettingsManager, onBack: () -> Unit) {
+private fun SetupScreen(
+    settingsManager: SettingsManager,
+    dynamicColors: Boolean,
+    onDynamicColorsChange: (Boolean) -> Unit,
+    onBack: () -> Unit
+) {
     val context = LocalContext.current
 
     var permissionsGranted by remember {
@@ -840,6 +850,34 @@ private fun SetupScreen(settingsManager: SettingsManager, onBack: () -> Unit) {
                         Text(text = stringResource(R.string.grant_permissions))
                     }
                 }
+            }
+        }
+
+        // Apparence
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = CardShape,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = stringResource(R.string.setup_appearance),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.setup_dynamic_colors_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                FeatureToggleRow(
+                    label = stringResource(R.string.setup_dynamic_colors),
+                    checked = dynamicColors,
+                    onCheckedChange = onDynamicColorsChange
+                )
             }
         }
 

@@ -72,6 +72,7 @@ fun SilentModeSection(
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     var schedules by remember { mutableStateOf(manager.getSchedules()) }
+    var showInfo by remember { mutableStateOf(manager.getSchedules().isEmpty()) }
     var showDialog by remember { mutableStateOf(false) }
     var editingSchedule by remember { mutableStateOf<SilentModeSchedule?>(null) }
     var dndGranted by remember {
@@ -120,11 +121,14 @@ fun SilentModeSection(
                             contentDescription = stringResource(R.string.nav_back)
                         )
                     }
-                }
+                },
+                actions = { InfoToggleAction(onToggle = { showInfo = !showInfo }) }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 onClick = {
                     editingSchedule = null
                     showDialog = true
@@ -205,12 +209,9 @@ fun SilentModeSection(
                 )
             }
 
-            // Description
-            Text(
+            ScreenDescription(
                 text = stringResource(R.string.silent_mode_description),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 4.dp)
+                visible = showInfo
             )
 
             // Schedule list
@@ -244,7 +245,7 @@ fun SilentModeSection(
             }
 
             // Bottom spacer for FAB
-            Spacer(modifier = Modifier.height(72.dp))
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 

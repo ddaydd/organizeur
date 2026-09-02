@@ -7,6 +7,10 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -76,7 +80,8 @@ class MainActivity : ComponentActivity() {
         timerController.rescheduleAll()
 
         setContent {
-            OrganizeurTheme {
+            var dynamicColors by remember { mutableStateOf(settingsManager.useDynamicColors) }
+            OrganizeurTheme(dynamicColor = dynamicColors) {
                 MainScreen(
                     settingsManager = settingsManager,
                     silentModeManager = silentModeManager,
@@ -88,7 +93,12 @@ class MainActivity : ComponentActivity() {
                     timerController = timerController,
                     bandManager = bandManager,
                     gearManager = gearManager,
-                    onRequestBtPermissions = ::requestBtPermissions
+                    onRequestBtPermissions = ::requestBtPermissions,
+                    dynamicColors = dynamicColors,
+                    onDynamicColorsChange = {
+                        settingsManager.useDynamicColors = it
+                        dynamicColors = it
+                    }
                 )
             }
         }

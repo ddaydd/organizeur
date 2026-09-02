@@ -47,6 +47,11 @@ class SettingsManager(context: Context) {
         get() = prefs.getBoolean(KEY_MIBAND_VISIBLE, true)
         set(value) = prefs.edit().putBoolean(KEY_MIBAND_VISIBLE, value).apply()
 
+    /** false = palette Organizeur, true = couleurs dérivées du fond d'écran (Material You) */
+    var useDynamicColors: Boolean
+        get() = prefs.getBoolean(KEY_DYNAMIC_COLORS, false)
+        set(value) = prefs.edit().putBoolean(KEY_DYNAMIC_COLORS, value).apply()
+
     var isGearVisible: Boolean
         get() = prefs.getBoolean(KEY_GEAR_VISIBLE, true)
         set(value) = prefs.edit().putBoolean(KEY_GEAR_VISIBLE, value).apply()
@@ -63,6 +68,7 @@ class SettingsManager(context: Context) {
         private const val KEY_HELP_VISIBLE = "feature_help_visible"
         private const val KEY_MIBAND_VISIBLE = "feature_miband_visible"
         private const val KEY_GEAR_VISIBLE = "feature_gear_visible"
+        private const val KEY_DYNAMIC_COLORS = "use_dynamic_colors"
     }
 }
 

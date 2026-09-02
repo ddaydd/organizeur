@@ -11,7 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-// Fallback palette (should never be used since minSdk 31)
+// Palette Organizeur (par défaut) — les couleurs dynamiques du système
+// ne sont utilisées que si l'utilisateur les active dans la configuration
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF8B6914),
     onPrimary = Color(0xFFFFFFFF),
@@ -77,10 +78,11 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun OrganizeurTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    val colorScheme = if (Build.VERSION.SDK_INT >= 31) {
+    val colorScheme = if (dynamicColor && Build.VERSION.SDK_INT >= 31) {
         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else {
         if (darkTheme) DarkColorScheme else LightColorScheme

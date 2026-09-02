@@ -94,6 +94,7 @@ fun TimerScreen(
     var alarmGranted by remember { mutableStateOf(controller.canScheduleExactAlarms()) }
     var showDialog by remember { mutableStateOf(false) }
     var editingTimer by remember { mutableStateOf<CountdownTimer?>(null) }
+    var showInfo by remember { mutableStateOf(controller.getTimers().isEmpty()) }
 
     // Les notifications de décompte ne s'affichent pas sans cette permission (Android 13+)
     val notificationLauncher = rememberLauncherForActivityResult(
@@ -146,12 +147,17 @@ fun TimerScreen(
                             contentDescription = stringResource(R.string.nav_back)
                         )
                     }
+                },
+                actions = {
+                    if (selectedTab == 0) InfoToggleAction(onToggle = { showInfo = !showInfo })
                 }
             )
         },
         floatingActionButton = {
             if (selectedTab == 0) {
                 FloatingActionButton(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                     onClick = {
                         editingTimer = null
                         showDialog = true
@@ -221,11 +227,9 @@ fun TimerScreen(
                         })
                     }
 
-                    Text(
+                    ScreenDescription(
                         text = stringResource(R.string.timer_description),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                        visible = showInfo
                     )
 
                     if (timers.isEmpty()) {
@@ -273,7 +277,7 @@ fun TimerScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(72.dp))
+                Spacer(modifier = Modifier.height(96.dp))
             }
         }
     }

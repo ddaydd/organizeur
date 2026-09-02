@@ -66,6 +66,9 @@
     <string name="menu_setup">Configuration</string>
     <string name="dashboard_title">Organizeur</string>
     <string name="menu_help">Aide</string>
+    <string name="setup_appearance">Apparence</string>
+    <string name="setup_dynamic_colors">Couleurs du système</string>
+    <string name="setup_dynamic_colors_desc">Par défaut, Organizeur utilise sa propre palette. Activez cette option pour reprendre les couleurs dérivées de votre fond d\'écran.</string>
     <string name="setup_features">Fonctionnalités</string>
     <string name="setup_features_desc">Choisir les fonctionnalités affichées dans le menu</string>
 
@@ -119,6 +122,7 @@
 
     <!-- Alarmes -->
     <string name="menu_alarm">Alarmes</string>
+    <string name="info_toggle">Afficher l\'explication</string>
     <string name="alarm_title">Gestion des alarmes</string>
     <string name="alarm_description">Programmer des alarmes qui sonnent même en mode silencieux. Le mode silencieux est automatiquement désactivé quand une alarme sonne.</string>
     <string name="alarm_add">Ajouter une alarme</string>
@@ -142,6 +146,10 @@
     <string name="alarm_recurring">Récurrent</string>
     <string name="alarm_one_time">Ponctuel</string>
     <string name="alarm_deactivates_silent_mode">Désactiver le mode silencieux</string>
+    <string name="alarm_snooze_pending_title">Rappel : %1$s</string>
+    <string name="alarm_snooze_pending_text">Sonnera à %1$s</string>
+    <string name="alarm_snooze_cancel">Annuler le rappel</string>
+    <string name="alarm_snooze_channel">Rappel d\'alarme</string>
     <string name="alarm_perm_overlay">Affichage par-dessus les autres applis</string>
     <string name="alarm_perm_overlay_desc">Nécessaire pour afficher l\'alarme sur l\'écran verrouillé</string>
 

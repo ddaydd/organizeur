@@ -13,6 +13,8 @@ class AlarmScheduler(private val context: Context) {
 
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+    private val repository by lazy { AlarmRepository(context) }
+
     fun scheduleAllAlarms(repository: AlarmRepository) {
         val alarms = repository.getAlarms()
         for (alarm in alarms) {
@@ -20,6 +22,16 @@ class AlarmScheduler(private val context: Context) {
                 scheduleAlarm(alarm)
             } else {
                 cancelAlarm(alarm)
+            }
+        }
+        // Après un redémarrage, les rappels en attente doivent être reprogrammés
+        val snoozes = repository.getSnoozes()
+        for ((alarmId, triggerAt) in snoozes) {
+            val alarm = alarms.find { it.id == alarmId }
+            if (alarm == null) {
+                repository.clearSnooze(alarmId)
+            } else {
+                armSnooze(alarm, triggerAt)
             }
         }
     }
@@ -52,17 +64,30 @@ class AlarmScheduler(private val context: Context) {
         val oneShotIntent = createPendingIntent(alarm.id, -1)
         alarmManager.cancel(oneShotIntent)
         // Also cancel any pending snooze
-        val snoozeIntent = createPendingIntent(alarm.id, 0)
-        alarmManager.cancel(snoozeIntent)
+        cancelSnooze(alarm.id)
     }
 
     fun scheduleSnooze(alarm: Alarm) {
         if (!canScheduleExactAlarms()) return
 
         val triggerTime = System.currentTimeMillis() + alarm.snoozeDurationMinutes * 60_000L
+        armSnooze(alarm, triggerTime)
+        repository.setSnooze(alarm.id, triggerTime)
+    }
+
+    /** Annule le rappel en attente d'une alarme (alarme AlarmManager + état + notification). */
+    fun cancelSnooze(alarmId: String) {
+        alarmManager.cancel(createPendingIntent(alarmId, 0))
+        repository.clearSnooze(alarmId)
+        SnoozeNotifier(context).cancel(alarmId)
+    }
+
+    /** Programme l'alarme du rappel et affiche sa notification, sans toucher à l'état persisté. */
+    private fun armSnooze(alarm: Alarm, triggerAt: Long) {
         val pendingIntent = createPendingIntent(alarm.id, 0) // day=0 as snooze sentinel
-        val alarmInfo = AlarmManager.AlarmClockInfo(triggerTime, createShowIntent())
+        val alarmInfo = AlarmManager.AlarmClockInfo(triggerAt, createShowIntent())
         alarmManager.setAlarmClock(alarmInfo, pendingIntent)
+        SnoozeNotifier(context).show(alarm, triggerAt)
     }
 
     fun canScheduleExactAlarms(): Boolean {
@@ -129,6 +154,7 @@ class AlarmScheduler(private val context: Context) {
 
     companion object {
         const val ACTION_ALARM_FIRE = "com.organizeur.app.ALARM_FIRE"
+        const val ACTION_CANCEL_SNOOZE = "com.organizeur.app.CANCEL_SNOOZE"
         const val EXTRA_ALARM_ID = "alarm_id"
         const val EXTRA_DAY_OF_WEEK = "alarm_day_of_week"
     }

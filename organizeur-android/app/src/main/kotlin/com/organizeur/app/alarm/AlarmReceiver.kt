@@ -17,6 +17,10 @@ class AlarmReceiver : BroadcastReceiver() {
                 val dayOfWeek = intent.getIntExtra(AlarmScheduler.EXTRA_DAY_OF_WEEK, -1)
                 val alarm = repository.getAlarmById(alarmId) ?: return
 
+                // Le rappel éventuellement en attente vient d'arriver à échéance
+                repository.clearSnooze(alarmId)
+                SnoozeNotifier(context).cancel(alarmId)
+
                 if (alarm.enabled) {
                     // Acquire wake lock to turn screen on (needed for MIUI)
                     val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -53,6 +57,11 @@ class AlarmReceiver : BroadcastReceiver() {
                     val disabledAlarm = alarm.copy(enabled = false)
                     repository.updateAlarm(disabledAlarm)
                 }
+            }
+
+            AlarmScheduler.ACTION_CANCEL_SNOOZE -> {
+                val alarmId = intent.getStringExtra(AlarmScheduler.EXTRA_ALARM_ID) ?: return
+                scheduler.cancelSnooze(alarmId)
             }
 
             Intent.ACTION_BOOT_COMPLETED -> {
