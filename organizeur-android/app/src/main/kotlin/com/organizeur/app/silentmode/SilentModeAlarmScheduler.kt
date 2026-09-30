@@ -65,12 +65,18 @@ class SilentModeAlarmScheduler(private val context: Context) {
         val endHour = schedule.endHour ?: return
         val endMinute = schedule.endMinute ?: return
 
-        var triggerTime = getNextTriggerTime(dayOfWeek, endHour, endMinute)
-
-        // Handle overnight schedules: if end time is before start time, end is next day
-        val startTime = getNextTriggerTime(dayOfWeek, schedule.startHour, schedule.startMinute)
-        if (triggerTime <= startTime) {
-            triggerTime += 24 * 60 * 60 * 1000L
+        // The end belongs to a start: the one in progress (last start, possibly still running)
+        // or the next one. Computing the end on its own shifted overnight ends by a week, and
+        // rescheduling at start time then overwrote the end of the night that just began.
+        val nextStart = Calendar.getInstance().apply {
+            timeInMillis = getNextTriggerTime(dayOfWeek, schedule.startHour, schedule.startMinute)
+        }
+        val lastStart = (nextStart.clone() as Calendar).apply { add(Calendar.WEEK_OF_YEAR, -1) }
+        val endAfterLastStart = endAfter(lastStart, endHour, endMinute)
+        val triggerTime = if (endAfterLastStart > System.currentTimeMillis()) {
+            endAfterLastStart
+        } else {
+            endAfter(nextStart, endHour, endMinute)
         }
 
         val pendingIntent = createPendingIntent(schedule.id, dayOfWeek, isStart = false)
@@ -79,6 +85,18 @@ class SilentModeAlarmScheduler(private val context: Context) {
             triggerTime,
             pendingIntent
         )
+    }
+
+    /** First end time strictly after [start]: same day, or next day for overnight ranges. */
+    private fun endAfter(start: Calendar, endHour: Int, endMinute: Int): Long {
+        val end = (start.clone() as Calendar).apply {
+            set(Calendar.HOUR_OF_DAY, endHour)
+            set(Calendar.MINUTE, endMinute)
+        }
+        if (end.timeInMillis <= start.timeInMillis) {
+            end.add(Calendar.DAY_OF_YEAR, 1)
+        }
+        return end.timeInMillis
     }
 
     private fun getNextTriggerTime(dayOfWeek: Int, hour: Int, minute: Int): Long {

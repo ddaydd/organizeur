@@ -37,6 +37,17 @@
     <string name="silent_mode_dnd_total">Silence total</string>
     <string name="silent_mode_dnd_alarms">Alarmes uniquement</string>
     <string name="silent_mode_dnd_priority">Prioritaires uniquement</string>
+    <string name="silent_mode_priority_title">Laisser passer</string>
+    <string name="silent_mode_priority_help">Les alarmes et les médias passent toujours. Tout le reste est coupé.</string>
+    <string name="silent_mode_priority_repeat_callers">Appels répétés</string>
+    <string name="silent_mode_priority_repeat_callers_desc">Une même personne qui rappelle dans les 15 minutes</string>
+    <string name="silent_mode_priority_calls">Appels</string>
+    <string name="silent_mode_priority_messages">Messages</string>
+    <string name="silent_mode_priority_conversations">Conversations prioritaires</string>
+    <string name="silent_mode_senders_none">Personne</string>
+    <string name="silent_mode_senders_starred">Favoris</string>
+    <string name="silent_mode_senders_contacts">Contacts</string>
+    <string name="silent_mode_senders_anyone">Tous</string>
     <string name="silent_mode_volumes">Volumes</string>
     <string name="silent_mode_volume_ringtone">Sonnerie</string>
     <string name="silent_mode_volume_notification">Notifications</string>

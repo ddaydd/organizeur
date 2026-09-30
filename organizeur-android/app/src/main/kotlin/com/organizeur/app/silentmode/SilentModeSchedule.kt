@@ -10,6 +10,41 @@ enum class DndMode {
     PRIORITY_ONLY
 }
 
+/** Qui peut joindre en mode « Prioritaires uniquement » (appels ou messages). */
+enum class PrioritySenders {
+    NONE,
+    STARRED,
+    CONTACTS,
+    ANYONE
+}
+
+/**
+ * Exceptions du mode « Prioritaires uniquement ». Les alarmes et les médias passent toujours ;
+ * rappels, événements et sons système sont coupés.
+ */
+data class PriorityExceptions(
+    val repeatCallers: Boolean = true,
+    val calls: PrioritySenders = PrioritySenders.NONE,
+    val messages: PrioritySenders = PrioritySenders.NONE,
+    val conversations: Boolean = false
+) {
+    fun toJson(): JSONObject = JSONObject().apply {
+        put("repeatCallers", repeatCallers)
+        put("calls", calls.name)
+        put("messages", messages.name)
+        put("conversations", conversations)
+    }
+
+    companion object {
+        fun fromJson(json: JSONObject): PriorityExceptions = PriorityExceptions(
+            repeatCallers = json.optBoolean("repeatCallers", true),
+            calls = PrioritySenders.valueOf(json.optString("calls", PrioritySenders.NONE.name)),
+            messages = PrioritySenders.valueOf(json.optString("messages", PrioritySenders.NONE.name)),
+            conversations = json.optBoolean("conversations", false)
+        )
+    }
+}
+
 data class SilentModeSchedule(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
@@ -22,7 +57,9 @@ data class SilentModeSchedule(
     val dndMode: DndMode = DndMode.TOTAL_SILENCE,
     val ringtoneVolume: Int? = null,
     val notificationVolume: Int? = null,
-    val mediaVolume: Int? = null
+    val mediaVolume: Int? = null,
+    // null = exceptions réglées dans Android (Paramètres → Modes → Ne pas déranger)
+    val priorityExceptions: PriorityExceptions? = null
 ) {
     fun hasEndTime(): Boolean = endHour != null && endMinute != null
 
@@ -39,6 +76,7 @@ data class SilentModeSchedule(
         put("ringtoneVolume", ringtoneVolume ?: JSONObject.NULL)
         put("notificationVolume", notificationVolume ?: JSONObject.NULL)
         put("mediaVolume", mediaVolume ?: JSONObject.NULL)
+        put("priorityExceptions", priorityExceptions?.toJson() ?: JSONObject.NULL)
     }
 
     companion object {
@@ -60,7 +98,9 @@ data class SilentModeSchedule(
                 dndMode = DndMode.valueOf(json.getString("dndMode")),
                 ringtoneVolume = if (json.isNull("ringtoneVolume")) null else json.getInt("ringtoneVolume"),
                 notificationVolume = if (json.isNull("notificationVolume")) null else json.getInt("notificationVolume"),
-                mediaVolume = if (json.isNull("mediaVolume")) null else json.getInt("mediaVolume")
+                mediaVolume = if (json.isNull("mediaVolume")) null else json.getInt("mediaVolume"),
+                priorityExceptions = json.optJSONObject("priorityExceptions")
+                    ?.let { PriorityExceptions.fromJson(it) }
             )
         }
     }

@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.organizeur.app.R
 import com.organizeur.app.silentmode.DndMode
+import com.organizeur.app.silentmode.PriorityExceptions
+import com.organizeur.app.silentmode.PrioritySenders
 import com.organizeur.app.silentmode.SilentModeSchedule
 import java.util.Calendar
 
@@ -80,6 +82,9 @@ fun SilentModeEditDialog(
     var endHour by remember { mutableIntStateOf(schedule?.endHour ?: 7) }
     var endMinute by remember { mutableIntStateOf(schedule?.endMinute ?: 0) }
     var dndMode by remember { mutableStateOf(schedule?.dndMode ?: DndMode.TOTAL_SILENCE) }
+    var priorityExceptions by remember {
+        mutableStateOf(schedule?.priorityExceptions ?: PriorityExceptions())
+    }
 
     var modifyRingtone by remember { mutableStateOf(schedule?.ringtoneVolume != null) }
     var ringtoneVol by remember { mutableIntStateOf(schedule?.ringtoneVolume ?: 0) }
@@ -189,6 +194,12 @@ fun SilentModeEditDialog(
                 selected = dndMode,
                 onSelected = { dndMode = it }
             )
+            if (dndMode == DndMode.PRIORITY_ONLY) {
+                PriorityExceptionsEditor(
+                    exceptions = priorityExceptions,
+                    onChange = { priorityExceptions = it }
+                )
+            }
 
             // Volumes
             Text(
@@ -272,7 +283,9 @@ fun SilentModeEditDialog(
                             dndMode = dndMode,
                             ringtoneVolume = if (modifyRingtone) ringtoneVol else null,
                             notificationVolume = if (modifyNotification) notificationVol else null,
-                            mediaVolume = if (modifyMedia) mediaVol else null
+                            mediaVolume = if (modifyMedia) mediaVol else null,
+                            priorityExceptions = if (dndMode == DndMode.PRIORITY_ONLY)
+                                priorityExceptions else schedule?.priorityExceptions
                         )
                         onSave(result)
                     },
@@ -415,6 +428,89 @@ private fun DndModeSelector(
                     onClick = { onSelected(mode) }
                 )
                 Text(stringResource(labelRes))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun PriorityExceptionsEditor(
+    exceptions: PriorityExceptions,
+    onChange: (PriorityExceptions) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(R.string.silent_mode_priority_title),
+            style = MaterialTheme.typography.labelLarge
+        )
+        Text(
+            text = stringResource(R.string.silent_mode_priority_help),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = exceptions.repeatCallers,
+                onCheckedChange = { onChange(exceptions.copy(repeatCallers = it)) }
+            )
+            Column(modifier = Modifier.padding(start = 4.dp)) {
+                Text(stringResource(R.string.silent_mode_priority_repeat_callers))
+                Text(
+                    text = stringResource(R.string.silent_mode_priority_repeat_callers_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        SendersSelector(
+            label = stringResource(R.string.silent_mode_priority_calls),
+            selected = exceptions.calls,
+            onSelected = { onChange(exceptions.copy(calls = it)) }
+        )
+        SendersSelector(
+            label = stringResource(R.string.silent_mode_priority_messages),
+            selected = exceptions.messages,
+            onSelected = { onChange(exceptions.copy(messages = it)) }
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = exceptions.conversations,
+                onCheckedChange = { onChange(exceptions.copy(conversations = it)) }
+            )
+            Text(
+                text = stringResource(R.string.silent_mode_priority_conversations),
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun SendersSelector(
+    label: String,
+    selected: PrioritySenders,
+    onSelected: (PrioritySenders) -> Unit
+) {
+    val options = listOf(
+        PrioritySenders.NONE to R.string.silent_mode_senders_none,
+        PrioritySenders.STARRED to R.string.silent_mode_senders_starred,
+        PrioritySenders.CONTACTS to R.string.silent_mode_senders_contacts,
+        PrioritySenders.ANYONE to R.string.silent_mode_senders_anyone
+    )
+    Column {
+        Text(text = label, modifier = Modifier.padding(start = 12.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.padding(start = 12.dp)
+        ) {
+            options.forEach { (senders, labelRes) ->
+                FilterChip(
+                    selected = selected == senders,
+                    onClick = { onSelected(senders) },
+                    label = { Text(stringResource(labelRes)) }
+                )
             }
         }
     }

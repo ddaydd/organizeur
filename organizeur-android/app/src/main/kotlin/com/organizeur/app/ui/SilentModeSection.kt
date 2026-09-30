@@ -263,6 +263,10 @@ fun SilentModeSection(
                 }
                 if (result.enabled) {
                     scheduler.scheduleAlarms(result)
+                    // Active schedule edited: apply the new settings right away
+                    if (manager.getActiveScheduleId() == result.id) {
+                        enforcer.applySilentMode(result)
+                    }
                 }
                 refreshSchedules()
                 showDialog = false

@@ -26,6 +26,14 @@ class SilentModeEnforcer(private val context: Context) {
 
         // Apply DND mode
         if (notificationManager.isNotificationPolicyAccessGranted) {
+            val exceptions = schedule.priorityExceptions
+            if (schedule.dndMode == DndMode.PRIORITY_ONLY && exceptions != null) {
+                // Keep the first original policy if a schedule already replaced it
+                if (manager.getPreviousPolicy() == null) {
+                    manager.savePreviousPolicy(notificationManager.notificationPolicy)
+                }
+                notificationManager.notificationPolicy = buildPolicy(exceptions)
+            }
             val filter = when (schedule.dndMode) {
                 DndMode.TOTAL_SILENCE -> NotificationManager.INTERRUPTION_FILTER_NONE
                 DndMode.ALARMS_ONLY -> NotificationManager.INTERRUPTION_FILTER_ALARMS
@@ -57,12 +65,51 @@ class SilentModeEnforcer(private val context: Context) {
             // Restore DND
             if (notificationManager.isNotificationPolicyAccessGranted) {
                 notificationManager.setInterruptionFilter(savedState.interruptionFilter)
+                restorePreviousPolicy()
             }
 
             manager.clearSavedState()
         }
 
         manager.setActiveScheduleId(null)
+    }
+
+    private fun restorePreviousPolicy() {
+        val policy = manager.getPreviousPolicy() ?: return
+        notificationManager.notificationPolicy = policy
+        manager.clearSavedPolicy()
+    }
+
+    private fun buildPolicy(exceptions: PriorityExceptions): NotificationManager.Policy {
+        var categories = NotificationManager.Policy.PRIORITY_CATEGORY_ALARMS or
+            NotificationManager.Policy.PRIORITY_CATEGORY_MEDIA
+        if (exceptions.repeatCallers) {
+            categories = categories or NotificationManager.Policy.PRIORITY_CATEGORY_REPEAT_CALLERS
+        }
+        if (exceptions.calls != PrioritySenders.NONE) {
+            categories = categories or NotificationManager.Policy.PRIORITY_CATEGORY_CALLS
+        }
+        if (exceptions.messages != PrioritySenders.NONE) {
+            categories = categories or NotificationManager.Policy.PRIORITY_CATEGORY_MESSAGES
+        }
+        if (exceptions.conversations) {
+            categories = categories or NotificationManager.Policy.PRIORITY_CATEGORY_CONVERSATIONS
+        }
+        return NotificationManager.Policy(
+            categories,
+            exceptions.calls.toPolicySenders(),
+            exceptions.messages.toPolicySenders(),
+            notificationManager.notificationPolicy.suppressedVisualEffects,
+            if (exceptions.conversations) NotificationManager.Policy.CONVERSATION_SENDERS_IMPORTANT
+            else NotificationManager.Policy.CONVERSATION_SENDERS_NONE
+        )
+    }
+
+    private fun PrioritySenders.toPolicySenders(): Int = when (this) {
+        // Ignored by the system when the matching category is off
+        PrioritySenders.NONE, PrioritySenders.STARRED -> NotificationManager.Policy.PRIORITY_SENDERS_STARRED
+        PrioritySenders.CONTACTS -> NotificationManager.Policy.PRIORITY_SENDERS_CONTACTS
+        PrioritySenders.ANYONE -> NotificationManager.Policy.PRIORITY_SENDERS_ANY
     }
 
     fun isAnyScheduleActive(): Boolean = manager.getActiveScheduleId() != null

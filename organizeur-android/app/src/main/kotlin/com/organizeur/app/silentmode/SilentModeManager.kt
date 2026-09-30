@@ -1,5 +1,6 @@
 package com.organizeur.app.silentmode
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import org.json.JSONArray
@@ -88,6 +89,33 @@ class SilentModeManager(context: Context) {
             .apply()
     }
 
+    // Politique Ne pas déranger remplacée par des exceptions de la plage, à remettre à la fin
+    fun savePreviousPolicy(policy: NotificationManager.Policy) {
+        prefs.edit()
+            .putInt(KEY_PREV_POLICY_CATEGORIES, policy.priorityCategories)
+            .putInt(KEY_PREV_POLICY_CALLS, policy.priorityCallSenders)
+            .putInt(KEY_PREV_POLICY_MESSAGES, policy.priorityMessageSenders)
+            .putInt(KEY_PREV_POLICY_EFFECTS, policy.suppressedVisualEffects)
+            .putInt(KEY_PREV_POLICY_CONVERSATIONS, policy.priorityConversationSenders)
+            .putBoolean(KEY_HAS_SAVED_POLICY, true)
+            .apply()
+    }
+
+    fun getPreviousPolicy(): NotificationManager.Policy? {
+        if (!prefs.getBoolean(KEY_HAS_SAVED_POLICY, false)) return null
+        return NotificationManager.Policy(
+            prefs.getInt(KEY_PREV_POLICY_CATEGORIES, 0),
+            prefs.getInt(KEY_PREV_POLICY_CALLS, 0),
+            prefs.getInt(KEY_PREV_POLICY_MESSAGES, 0),
+            prefs.getInt(KEY_PREV_POLICY_EFFECTS, 0),
+            prefs.getInt(KEY_PREV_POLICY_CONVERSATIONS, 0)
+        )
+    }
+
+    fun clearSavedPolicy() {
+        prefs.edit().putBoolean(KEY_HAS_SAVED_POLICY, false).apply()
+    }
+
     fun setActiveScheduleId(id: String?) {
         if (id != null) {
             prefs.edit().putString(KEY_ACTIVE_SCHEDULE, id).apply()
@@ -107,6 +135,12 @@ class SilentModeManager(context: Context) {
         private const val KEY_PREV_MEDIA = "prev_media"
         private const val KEY_PREV_INTERRUPTION = "prev_interruption"
         private const val KEY_ACTIVE_SCHEDULE = "active_schedule"
+        private const val KEY_HAS_SAVED_POLICY = "has_saved_policy"
+        private const val KEY_PREV_POLICY_CATEGORIES = "prev_policy_categories"
+        private const val KEY_PREV_POLICY_CALLS = "prev_policy_calls"
+        private const val KEY_PREV_POLICY_MESSAGES = "prev_policy_messages"
+        private const val KEY_PREV_POLICY_EFFECTS = "prev_policy_effects"
+        private const val KEY_PREV_POLICY_CONVERSATIONS = "prev_policy_conversations"
     }
 }
 

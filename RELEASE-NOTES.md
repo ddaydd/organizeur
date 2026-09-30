@@ -1,5 +1,18 @@
 # Release Notes
 
+## 2026-09-30
+
+### Mode silencieux : fin des plages de nuit corrigée (v1.9, versionCode 10)
+- L'heure de fin était calculée sans lien avec le début : pour une plage 21:00 → 09:00, elle tombait une semaine trop tard, et la reprogrammation au déclenchement du début écrasait la fin de la nuit en cours (même request code) → le silence ne s'arrêtait qu'au réveil ou à la main
+- La fin est maintenant rattachée au début en cours (s'il n'est pas terminé) ou au prochain (`SilentModeAlarmScheduler.endAfter`)
+
+### Mode silencieux : exceptions « Prioritaires uniquement » réglables dans l'app
+- « Prioritaires » laissait passer ce qu'Android jugeait prioritaire (sur le Pixel : conversations prioritaires et rappels, avec leur son) — cause des notifs entendues la nuit
+- Section **Laisser passer** : appels répétés, appels et messages (Personne / Favoris / Contacts / Tous), conversations prioritaires ; alarmes et médias toujours autorisés ; défaut = appels répétés seuls
+- Politique NPD d'origine sauvegardée au début (`prev_policy_*`) et restaurée à la fin
+- Modifier la plage active applique immédiatement les nouveaux réglages
+- Vérifié sur le Pixel 9a avec une plage de test de 3 min : notification bloquée, puis état d'origine restauré
+
 ## 2026-09-02
 
 ### Rappel d'alarme visible et annulable (v1.8, versionCode 9)
